@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>LiveDub — Ajustes</title>
+<style>
+  body{font:15px/1.5 system-ui,sans-serif;max-width:620px;margin:40px auto;padding:0 16px 120px;color:#1a1a1a}
+  h2{margin-top:36px;font-size:16px;border-top:1px solid #e5e5e5;padding-top:20px}
+  label{display:block;margin:16px 0 4px;font-weight:600}
+  input[type=text],input[type=password],input[type=number],select{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font:inherit;box-sizing:border-box}
+  input[type=range]{width:100%}
+  small{color:#666;display:block;margin-top:4px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  button{margin:16px 8px 0 0;padding:10px 16px;border:0;border-radius:6px;background:#fa5a28;color:#fff;font:inherit;cursor:pointer}
+  button.sec{background:#eee;color:#1a1a1a}
+  .val{font-weight:400;color:#666}
+  label.chk{display:flex;align-items:center;gap:8px;cursor:pointer}
+  label.chk input{width:18px;height:18px}
+  #capPreviewWrap{margin-top:12px;padding:46px 16px 18px;border-radius:8px;text-align:center;background:linear-gradient(135deg,#2b3a55,#6b4f3a 55%,#222)}
+  #capPreview{display:inline-block;max-width:80%;padding:6px 12px;border-radius:8px;color:#fff}
+  #elState{margin-top:10px}
+  #elState .box{box-shadow:none;font-size:13px}
+  #elState button{margin:8px 0 0}
+  #stats{margin-top:8px;color:#333}
+  #msg{position:sticky;bottom:12px;margin-top:20px;word-break:break-word}
+  .box{border-radius:8px;padding:12px 14px;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+  .box.ok{background:#eaf6ea;color:#1f6b1f}
+  .box.err{background:#fdecea;color:#8a1f12}
+  .box .t{font-weight:700;margin-bottom:4px}
+  .box .tip{margin:4px 0 8px}
+  .box .raw{font:12px/1.4 ui-monospace,monospace;opacity:.75}
+  .box.info{background:#f2f2f2;color:#333}
+</style>
+</head>
+<body>
+<h1>LiveDub</h1>
+<button id="save">Guardar todo</button>
+
+<h2>Traducción (Anthropic)</h2>
+<label for="anthropicKey">API key de Anthropic</label>
+<input id="anthropicKey" type="password" placeholder="sk-ant-...">
+<small>Se guarda solo en este navegador (chrome.storage.local).</small>
+<label for="model">Modelo de traducción</label>
+<select id="model">
+  <option value="claude-haiku-4-5">Haiku 4.5 (rápido y barato, recomendado)</option>
+  <option value="claude-sonnet-4-5">Sonnet 4.5 (más fino con la jerga)</option>
+</select>
+<label for="modelCustom">Otro modelo (opcional)</label>
+<input id="modelCustom" type="text" placeholder="ID exacto del modelo, si quieres usar otro">
+<small>Si lo rellenas, tiene prioridad sobre la lista de arriba.</small>
+<button id="testTr" class="sec">Probar traducción</button>
+
+<h2>Voz de ElevenLabs (opcional, gasta créditos)</h2>
+<label class="chk"><input type="checkbox" id="elevenEnabled"> Usar ElevenLabs</label>
+<small>Apágalo para usar solo la voz del navegador (gratis) sin tener que borrar la clave ni el Voice ID. También puedes cambiarlo desde el botón sobre el vídeo.</small>
+<div id="elState"></div>
+<label for="elevenKey">API key de ElevenLabs</label>
+<input id="elevenKey" type="password">
+<label for="elevenVoice">Voice ID de ElevenLabs</label>
+<input id="elevenVoice" type="text">
+<small>Clave e ID van juntos. Sin ellos se usa la voz del navegador (gratis).</small>
+<label for="elevenModel">Modelo de voz</label>
+<select id="elevenModel">
+  <option value="eleven_flash_v2_5">Flash v2.5 (rápido, más barato)</option>
+  <option value="eleven_turbo_v2_5">Turbo v2.5 (equilibrado)</option>
+  <option value="eleven_multilingual_v2">Multilingual v2 (mejor calidad, más lento y caro)</option>
+</select>
+
+<label for="elevenStability">Estabilidad <span class="val" id="elevenStabilityV"></span></label>
+<input id="elevenStability" type="range" min="0" max="1" step="0.05" value="0.5">
+<small>Más baja = más expresiva y variable. Más alta = más monótona y constante. Para un curso, 0,5–0,7 suele ir bien.</small>
+<label for="elevenSimilarity">Similitud con la voz <span class="val" id="elevenSimilarityV"></span></label>
+<input id="elevenSimilarity" type="range" min="0" max="1" step="0.05" value="0.75">
+<label for="elevenSpeed">Velocidad <span class="val" id="elevenSpeedV"></span></label>
+<input id="elevenSpeed" type="range" min="0.7" max="1.2" step="0.05" value="1">
+<small>Con ElevenLabs, además, la extensión acelera cada frase lo justo para no solaparse con la siguiente.</small>
+
+<div id="voicesBox"></div>
+<button id="test" class="sec">Probar ElevenLabs</button>
+<button id="voices" class="sec">Cargar mis voces</button>
+
+<h2>Voz del navegador (gratis)</h2>
+<label for="browserVoice">Voz</label>
+<select id="browserVoice"></select>
+<small>Es la que se usa si no hay ElevenLabs. Las voces «Natural» / «Online» (por ejemplo en Edge) suenan mucho mejor que las locales.</small>
+<button id="testBr" class="sec">Probar voz del navegador</button>
+
+<h2>Subtítulo sobre el vídeo</h2>
+<label class="chk"><input type="checkbox" id="showCaptions"> Mostrar la traducción como subtítulo sobre el vídeo</label>
+<small>Es un subtítulo propio de la extensión (no el de la plataforma), así que todo su aspecto se puede cambiar. Se aplica al instante en las pestañas abiertas.</small>
+<div id="capPreviewWrap"><div id="capPreview">Así se verá el subtítulo traducido sobre el vídeo.</div></div>
+<label for="capSize">Tamaño <span class="val" id="capSizeV"></span></label>
+<input id="capSize" type="range" min="12" max="40" step="1" value="18">
+<label for="capBg">Opacidad del fondo <span class="val" id="capBgV"></span></label>
+<input id="capBg" type="range" min="0" max="1" step="0.05" value="0.6">
+<label for="capText">Opacidad del texto <span class="val" id="capTextV"></span></label>
+<input id="capText" type="range" min="0.3" max="1" step="0.05" value="1">
+<label for="capBottom">Altura desde el borde inferior del vídeo (px) <span class="val" id="capBottomV"></span></label>
+<input id="capBottom" type="range" min="0" max="300" step="2" value="56">
+<small>Más bajo = más cerca del borde de abajo. La barra de control del reproductor ocupa unos 45 px.</small>
+<label for="capWidth">Ancho máximo (% del vídeo) <span class="val" id="capWidthV"></span></label>
+<input id="capWidth" type="range" min="30" max="95" step="1" value="70">
+<label for="capFont">Fuente</label>
+<select id="capFont">
+  <option value="system-ui, sans-serif">Sistema (por defecto)</option>
+  <option value="Arial, Helvetica, sans-serif">Arial</option>
+  <option value="Verdana, Geneva, sans-serif">Verdana</option>
+  <option value="Tahoma, sans-serif">Tahoma</option>
+  <option value="&quot;Trebuchet MS&quot;, sans-serif">Trebuchet MS</option>
+  <option value="Georgia, serif">Georgia (con serifa)</option>
+  <option value="&quot;Times New Roman&quot;, serif">Times New Roman</option>
+  <option value="&quot;Courier New&quot;, monospace">Courier New (monoespaciada)</option>
+</select>
+<small>Solo fuentes que ya trae el sistema. Si quieres otra concreta, dímelo y la añadimos.</small>
+<label class="chk"><input type="checkbox" id="capBold"> Texto en negrita</label>
+
+<h2>Caché (ahorra tokens y créditos)</h2>
+<div id="stats">Cargando…</div>
+<small>Guarda cada traducción y cada audio ya generado. Si vuelves a ver la misma frase con la misma voz, no se gasta nada.</small>
+<label for="cacheMaxMb">Límite de caché de audio (MB)</label>
+<input id="cacheMaxMb" type="number" min="50" max="5000" step="50" value="500">
+<small>Al superarlo se borran los audios más antiguos. Un audio ocupa unos 30 MB por hora de vídeo.</small>
+<button id="statsBtn" class="sec">Actualizar</button>
+<button id="clear" class="sec">Vaciar caché</button>
+
+<div id="msg"></div>
+<script src="errors.js"></script>
+<script src="options.js"></script>
+</body>
+</html>
