@@ -2,7 +2,7 @@
 
 <p align="center">
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
-  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.6.2-fa5a28">
+  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.7.0-fa5a28">
   <img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-green">
   <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-lightgrey">
   <img alt="Claves locales" src="https://img.shields.io/badge/claves-solo%20en%20tu%20navegador-success">
@@ -21,6 +21,7 @@ Los subtítulos automáticos en español de las plataformas suelen ser malos. Aq
 ## Características
 
 - **Lee los subtítulos en inglés aunque el CC esté apagado** (reproductores Video.js; resto de sitios por `textTracks` o por el DOM).
+- **YouTube en segundo plano:** lee la transcripción completa del vídeo, así que sigue doblando aunque cambies de pestaña (ver [compatibilidad](#compatibilidad)).
 - **Traducción con Claude** (Haiku 4.5 por defecto, Sonnet opcional), con 90 s de antelación y contexto de las frases vecinas.
 - **Dos voces**: ElevenLabs (calidad) o voz del navegador (gratis). Interruptor para alternar sin borrar claves; si ElevenLabs falla, se desactiva y se recuerda.
 - **Subtítulo en español propio** sobre el vídeo, personalizable: tamaño, opacidad, fuente, posición, ancho y negrita.
@@ -38,7 +39,7 @@ Los subtítulos automáticos en español de las plataformas suelen ser malos. Aq
 | Plataforma | Estado | Cómo lee los subtítulos | Probado en |
 |---|---|---|---|
 | **Awwwards Academy** (Video.js) | ✅ Probado | Pista de subtítulos en inglés, **aunque el CC esté apagado** | v0.6.x |
-| **YouTube** | ✅ Probado | Activa el CC por ti, lo oculta y muestra tu subtítulo en español | v0.6.2 |
+| **YouTube** | ✅ Probado | Lee la **transcripción completa** de YouTube (funciona con la pestaña en segundo plano). Si el vídeo no la tiene, activa el CC por ti y lee lo que se ve en pantalla (ahí la pestaña debe estar visible). En ambos casos oculta los subtítulos en inglés y muestra el tuyo en español | v0.7.0 |
 | Otros reproductores Video.js | 🟡 Debería funcionar | Pista de subtítulos (`textTracks`) | Sin probar |
 | Otros sitios | 🟡 Depende | Si publican `textTracks` o pintan los subtítulos en pantalla (activa el CC) | Sin probar |
 | Vídeos **sin subtítulos** | ❌ No soportado | No hay texto que leer (modo por audio en la hoja de ruta) | — |
@@ -81,6 +82,7 @@ Haz clic en el icono de LiveDub para abrir los ajustes. Arriba a la derecha pued
 - **API key de Anthropic:** obligatoria. Se guarda solo en tu navegador.
 - **Modelo:** Haiku 4.5 (rápido y barato, recomendado) o Sonnet 4.5 (más fino con la jerga técnica). El campo **Otro modelo** permite escribir un ID exacto y tiene prioridad sobre la lista.
 - **Cómo traduce:** agrupa los subtítulos en frases, las envía a Claude en lotes y traduce con unos **90 segundos de antelación**. El prompt sabe que los subtítulos son automáticos y corrige errores de reconocimiento usando el contexto de las frases vecinas.
+- **YouTube: leer la transcripción completa** (activado por defecto): LiveDub abre un momento el panel «Mostrar transcripción» de YouTube (invisible), lee las frases con su tiempo y lo cierra. Permite doblar con la pestaña en segundo plano y traducir con antelación. Desactívalo solo si YouTube cambia su página y falla: entonces vuelve a leer lo que se ve en pantalla (con la pestaña visible).
 - **Probar traducción:** hace una petición de prueba y te dice si la clave funciona, con el motivo y qué hacer si falla.
 </details>
 
@@ -131,9 +133,10 @@ Guarda en tu navegador (IndexedDB) cada **traducción** y cada **audio de Eleven
 <details>
 <summary><b>🔍 Cómo lee los subtítulos</b></summary>
 
-1. En reproductores **Video.js** (como Awwwards Academy) lee directamente la pista en inglés, **aunque el CC esté apagado o en español**.
-2. Si no hay Video.js, usa las pistas de texto del `<video>`.
-3. Como último recurso, el **modo «live»**: lee el texto que pinta el reproductor en pantalla. Ahí necesitas tener el CC activado; si pasan unos segundos sin detectar subtítulos, el botón avisa «activa CC».
+1. En **YouTube** lee la **transcripción completa** (la del botón «Mostrar transcripción»), aunque el CC esté apagado y con la pestaña en segundo plano. Si el vídeo no tiene transcripción, pasa al modo «live» (punto 4).
+2. En reproductores **Video.js** (como Awwwards Academy) lee directamente la pista en inglés, **aunque el CC esté apagado o en español**.
+3. Si no hay Video.js, usa las pistas de texto del `<video>`.
+4. Como último recurso, el **modo «live»**: lee el texto que pinta el reproductor en pantalla. Ahí necesitas tener el CC activado; si pasan unos segundos sin detectar subtítulos, el botón avisa «activa CC».
 
 Si los subtítulos ya vienen en español, se salta la traducción y solo locuta.
 </details>
@@ -198,7 +201,7 @@ Más detalle de cambios en el [CHANGELOG](CHANGELOG.md). ¿Ideas o fallos? Abre 
 
 A Chrome (Manifest V3) extension that **dubs English video courses into Spanish in near real time**. It reads the player's English subtitles, translates them with **Claude**, and speaks them with **ElevenLabs** or the free browser voice, ducking the original audio. Built for courses like Awwwards Academy.
 
-**Languages:** currently **English → Spanish only** (Spain Spanish). Other target languages are not planned until there is demand — suggest one in [Discussions → Ideas](../../discussions) or contribute it. **Tested on:** Awwwards Academy (Video.js, works even with CC off) and YouTube (auto-enables CC, hides the English captions, shows the Spanish ones). Other sites work if the player exposes `textTracks` or renders captions on screen. Videos without subtitles can't be dubbed yet. Tried another platform? Tell us in Discussions → Show and tell.
+**Languages:** currently **English → Spanish only** (Spain Spanish). Other target languages are not planned until there is demand — suggest one in [Discussions → Ideas](../../discussions) or contribute it. **Tested on:** Awwwards Academy (Video.js, works even with CC off) and YouTube (reads the full transcript, so it keeps dubbing in a background tab; falls back to on-screen captions if the video has no transcript). Other sites work if the player exposes `textTracks` or renders captions on screen. Videos without subtitles can't be dubbed yet. Tried another platform? Tell us in Discussions → Show and tell.
 
 **Highlights:** reads English tracks even with CC off (Video.js) · context-aware translation that fixes auto-caption errors · ElevenLabs / browser voice switch with remembered failures · customizable on-screen Spanish subtitle · local cache to avoid re-spending tokens and credits · zero dependencies, no server, keys stay in `chrome.storage.local`.
 

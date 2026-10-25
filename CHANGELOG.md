@@ -1,5 +1,12 @@
 # Changelog — LiveDub
 
+## v0.7.0 — 2026-10-25
+
+- **YouTube en segundo plano:** LiveDub lee la **transcripción completa** del vídeo (el panel «Mostrar transcripción», que abre y cierra por sí mismo) en vez del texto que YouTube dibuja en pantalla. Ya no se corta al cambiar de pestaña, y se traduce con antelación como en Awwwards.
+- Nuevo ajuste **YouTube: leer la transcripción completa** (activado por defecto). Si YouTube cambia su página y falla, se puede desactivar para volver al modo anterior.
+- Si el vídeo no tiene transcripción, vuelve automáticamente al modo de lectura en pantalla (CC automático; la pestaña debe estar visible).
+- Al cambiar de vídeo dentro de YouTube, LiveDub se apaga solo para no doblar con el texto del vídeo anterior.
+
 ## v0.6.2 — 2026-10-25
 
 - **Arreglo YouTube:** ya no lee en voz alta textos de la interfaz del reproductor (barra de progreso, tooltips, capítulos, "0:04 / 53:17"…). En YouTube solo se leen los subtítulos reales (activa CC).

@@ -38,6 +38,7 @@
   // (Estas variables van aquí arriba porque layout() se ejecuta al montar el botón, antes que el resto del script.)
   let voiceBtn = null, elState = "missing", elMsg = "";
   let banner = null, capEl = null, capId = 0, showCapOn = true;
+  let ytTranscriptOn = true;
   let cap = { capSize: 18, capBg: 0.6, capText: 1, capFont: "system-ui, sans-serif", capBottom: 56, capWidth: 70, capBold: true };
   function layout() {
     if (!btn || !video) return;
@@ -200,6 +201,64 @@
     return segments.length > 0;
   }
 
+  /* ---------- YouTube: transcripción completa (funciona con la pestaña en segundo plano) ---------- */
+  const isYT = /(^|\.)youtube\.com$/.test(location.hostname);
+  const YT_PANEL = 'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]';
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const tsToSec = (s) => s.trim().split(":").reduce((a, x) => a * 60 + (parseInt(x, 10) || 0), 0);
+
+  // Oculta (solo visualmente) los subtítulos en inglés de YouTube: se ve el subtítulo en español de LiveDub.
+  function hideYtCaptions() {
+    if (!showCapOn || document.getElementById("dobes-hide-yt")) return;
+    const st = document.createElement("style");
+    st.id = "dobes-hide-yt";
+    st.textContent = ".ytp-caption-window-container{opacity:0 !important}";
+    document.head.appendChild(st);
+  }
+
+  // Abre el panel «Mostrar transcripción» de YouTube (invisible), lee todas las frases con su tiempo y lo cierra.
+  async function loadFromYouTube() {
+    if (!isYT || !ytTranscriptOn) return false;
+    const segEls = () => [...document.querySelectorAll("ytd-transcript-segment-renderer")];
+    const panel = () => document.querySelector(YT_PANEL);
+    const wasOpen = panel()?.getAttribute("visibility") === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED";
+    const hideCss = document.createElement("style");
+    hideCss.textContent = `${YT_PANEL}{opacity:0 !important;pointer-events:none !important}`;
+    if (!wasOpen) document.head.appendChild(hideCss);
+    try {
+      if (!segEls().length) {
+        // YouTube pinta el botón «Mostrar transcripción» unos segundos después de cargar la página (aunque la descripción esté recogida).
+        const findBtn = () => document.querySelector("ytd-video-description-transcript-section-renderer button");
+        for (let i = 0; i < 40 && !findBtn(); i++) await sleep(250);
+        const b = findBtn();
+        if (!b) { console.info("[DobES] YouTube: este vídeo no ofrece transcripción"); return false; }
+        b.click();
+        for (let i = 0; i < 40 && !segEls().length; i++) await sleep(200);
+      }
+      const els = segEls();
+      const cues = els.map((e) => ({
+        start: tsToSec(e.querySelector(".segment-timestamp")?.textContent || "0:00"),
+        text: (e.querySelector(".segment-text")?.textContent || "").replace(/\s+/g, " ").trim(),
+      })).filter((c) => c.text);
+      cues.forEach((c, i) => { c.end = i + 1 < cues.length ? cues[i + 1].start : c.start + 4; });
+      if (cues.length < 5) { console.info("[DobES] YouTube: transcripción vacía o demasiado corta, uso el modo en pantalla"); return false; }
+      segments = groupSentences(cues, false);
+      console.info(`[DobES] transcripción de YouTube leída: ${cues.length} líneas → ${segments.length} frases`);
+      return segments.length > 0;
+    } catch (e) {
+      console.info("[DobES] YouTube: no pude leer la transcripción:", e);
+      return false;
+    } finally {
+      // Cerramos el panel si lo abrimos nosotros.
+      if (!wasOpen) {
+        const p = panel();
+        const x = p?.querySelector("#visibility-button button");
+        if (x) x.click(); else p?.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
+        setTimeout(() => hideCss.remove(), 800);
+      }
+    }
+  }
+
   // Une cues sueltos en frases completas: traduce y suena mucho mejor.
   function groupSentences(cues, trackIsEs) {
     const out = [];
@@ -219,7 +278,6 @@
   // Plan B: subtítulos pintados por el reproductor (DOM). Sin pretraducción.
   function loadFromDom() {
     // YouTube pinta sus subtítulos en el DOM y no usa textTracks: solo leemos su contenedor de subtítulos.
-    const isYT = /(^|\.)youtube\.com$/.test(location.hostname);
     const sel = isYT
       ? ['.ytp-caption-window-container .caption-window', '.ytp-caption-segment']
       : ['[class*="caption" i]', '[class*="subtitle" i]', '[class*="cue" i]', '[class*="vp-captions" i]',
@@ -260,13 +318,7 @@
         else if (!b) console.info("[DobES] este vídeo no ofrece botón de subtítulos (CC)");
       };
       ccOn(); setTimeout(ccOn, 1500);
-      // Ocultamos (solo visualmente) los subtítulos en inglés de YouTube: los seguimos leyendo, pero se ve el subtítulo en español de LiveDub.
-      if (showCapOn && !document.getElementById("dobes-hide-yt")) {
-        const st = document.createElement("style");
-        st.id = "dobes-hide-yt";
-        st.textContent = ".ytp-caption-window-container{opacity:0 !important}";
-        document.head.appendChild(st);
-      }
+      hideYtCaptions();
     }
     read();
   }
@@ -495,12 +547,14 @@
     useEleven = !!cfg?.data?.eleven;
     elState = cfg?.data?.elevenState || "missing"; elMsg = cfg?.data?.elevenMsg || ""; renderVoiceBtn();
     showCapOn = cfg?.data?.showCaptions !== false;
+    ytTranscriptOn = cfg?.data?.ytTranscript !== false;
     if (cfg?.data?.cap) cap = { ...cap, ...cfg.data.cap };
     liveSeen = 0;
     preferredVoice = cfg?.data?.browserVoice || ""; pickVoice();
     elevenFails = 0; audioInflight = 0;
     segments = []; liveMode = false;
-    const ok = await loadFromTrack();
+    let ok = await loadFromTrack();
+    if (!ok && isYT) { ok = await loadFromYouTube(); if (ok) hideYtCaptions(); }
     if (!ok) { loadFromDom(); console.info("[DobES] sin textTracks: usando subtítulos del DOM (modo en vivo). Activa CC en el reproductor."); }
     origVolume = video.volume; video.volume = DUCK;
     on = true;
@@ -521,4 +575,6 @@
     if (video) { video.volume = origVolume; video.removeEventListener("seeking", onSeek); }
     status("ES ▸ off");
   }
+  // YouTube cambia de vídeo sin recargar la página: paramos para no doblar con el texto del vídeo anterior.
+  if (isYT) addEventListener("yt-navigate-finish", () => { if (on) stop(); });
 })();

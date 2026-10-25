@@ -87,6 +87,7 @@ RANGES.forEach((id) => {
 $("capFont").onchange = () => { updatePreview(); saveCapSoon(); };
 $("capBold").onchange = () => { updatePreview(); saveCapSoon(); };
 $("showCaptions").onchange = () => chrome.storage.local.set({ showCaptions: $("showCaptions").checked });
+$("ytTranscript").onchange = () => chrome.storage.local.set({ ytTranscript: $("ytTranscript").checked });
 
 // Estado de ElevenLabs (activo / apagado / bloqueado por un error anterior / sin configurar).
 async function refreshElState() {
@@ -115,9 +116,10 @@ chrome.storage.onChanged.addListener((ch) => {
   if (ch.elevenBlock || ch.elevenEnabled) refreshElState();
 });
 
-chrome.storage.local.get([...F, "elevenEnabled", "showCaptions", "capBold"]).then((v) => {
+chrome.storage.local.get([...F, "elevenEnabled", "showCaptions", "ytTranscript", "capBold"]).then((v) => {
   $("elevenEnabled").checked = v.elevenEnabled !== false;
   $("showCaptions").checked = v.showCaptions !== false;
+  $("ytTranscript").checked = v.ytTranscript !== false;
   $("capBold").checked = v.capBold !== false;
   refreshElState();
   F.forEach((i) => { if (v[i] !== undefined && v[i] !== "" && i !== "browserVoice") $(i).value = v[i]; });
@@ -136,6 +138,7 @@ async function save() {
   });
   o.elevenEnabled = $("elevenEnabled").checked;
   o.showCaptions = $("showCaptions").checked;
+  o.ytTranscript = $("ytTranscript").checked;
   o.capBold = $("capBold").checked;
   await chrome.storage.local.set(o);
   $("browserVoice").dataset.saved = o.browserVoice;

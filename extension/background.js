@@ -29,6 +29,7 @@ const DEFAULTS = {
   elevenSpeed: 1,
   browserVoice: "",
   cacheMaxMb: 500,
+  ytTranscript: true,  // YouTube: lee la transcripción completa (funciona con la pestaña en segundo plano)
   showCaptions: true,  // muestra la traducción como subtítulo sobre el vídeo
   capSize: 18,         // aspecto del subtítulo: tamaño (px)
   capBg: 0.6,          // opacidad del fondo (0–1)
@@ -256,7 +257,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         sendResponse({ ok: true, data: {
           eleven: st === "ready", elevenState: st,
           elevenMsg: st === "blocked" ? c.elevenBlock.error : "", elevenStatus: st === "blocked" ? c.elevenBlock.status : 0,
-          browserVoice: c.browserVoice || "", showCaptions: c.showCaptions !== false,
+          browserVoice: c.browserVoice || "", showCaptions: c.showCaptions !== false, ytTranscript: c.ytTranscript !== false,
           cap: { capSize: num(c.capSize, 18), capBg: num(c.capBg, 0.6), capText: num(c.capText, 1), capFont: c.capFont || DEFAULTS.capFont,
                  capBottom: num(c.capBottom, 56), capWidth: num(c.capWidth, 70), capBold: c.capBold !== false },
         } });
