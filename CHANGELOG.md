@@ -1,5 +1,10 @@
 # Changelog — LiveDub
 
+## v0.7.1 — 2026-10-25
+
+- **Arreglo «La traducción llegó incompleta»:** cuando Claude juntaba o partía frases y devolvía otro número de elementos, se descartaba todo el lote y la voz se quedaba sin texto un momento. Ahora el lote se parte por la mitad y se reintenta, hasta que cuadre, así que casi nunca se nota.
+- Tras un fallo de traducción, LiveDub espera 3 s antes de reintentar, en vez de pedir de nuevo al instante (evita ráfagas de peticiones y gasto innecesario).
+
 ## v0.7.0 — 2026-10-25
 
 - **YouTube en segundo plano:** LiveDub lee la **transcripción completa** del vídeo (el panel «Mostrar transcripción», que abre y cierra por sí mismo) en vez del texto que YouTube dibuja en pantalla. Ya no se corta al cambiar de pestaña, y se traduce con antelación como en Awwwards.

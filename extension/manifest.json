@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LiveDub",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Dobla al español, casi en vivo, los vídeos en inglés usando sus subtítulos + Claude + voz TTS.",
   "permissions": [
     "storage",

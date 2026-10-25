@@ -324,8 +324,9 @@
   }
 
   /* ---------- 3. Traducción por adelantado ---------- */
+  let translateRetryAt = 0; // tras un fallo esperamos unos segundos antes de reintentar (evita ráfagas de peticiones)
   async function translateWindow() {
-    if (liveMode || !video || translating >= 2) return;
+    if (liveMode || !video || translating >= 2 || Date.now() < translateRetryAt) return;
     const t = video.currentTime;
     const todo = segments.filter((s) => s.state === 0 && s.end >= t - 1 && s.start <= t + LOOKAHEAD_S).slice(0, BATCH);
     if (!todo.length) return;
@@ -335,6 +336,7 @@
     translating--;
     if (!res?.ok) {
       todo.forEach((s) => (s.state = 0));
+      translateRetryAt = Date.now() + 3000;
       const e = notify("Traducción: ", res?.error, res?.status);
       status("ES ⚠ " + e.title.slice(0, 40), res?.error);
       return;

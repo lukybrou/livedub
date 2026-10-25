@@ -157,9 +157,34 @@ async function callClaude(texts, key, model) {
   const data = await res.json();
   const raw = data.content?.map((b) => b.text || "").join("") || "";
   const json = raw.slice(raw.indexOf("["), raw.lastIndexOf("]") + 1);
-  const out = JSON.parse(json);
-  if (!Array.isArray(out) || out.length !== texts.length) throw new Error("Respuesta de traducción con longitud distinta.");
+  let out = null;
+  try { out = JSON.parse(json); } catch { /* respuesta que no es JSON válido: se trata abajo */ }
+  if (!Array.isArray(out) || out.length !== texts.length) {
+    // Una sola frase: nos quedamos con lo que devuelva (une los trozos si la partió).
+    if (texts.length === 1) {
+      const one = Array.isArray(out) ? out.map(String).join(" ").trim() : raw.trim();
+      if (one) return [one];
+    }
+    const e = new Error("Respuesta de traducción con longitud distinta.");
+    e.code = "LEN";
+    throw e;
+  }
   return out.map(String);
+}
+
+// Claude a veces junta o parte frases y devuelve otro número de elementos. Entonces partimos el lote por la mitad
+// y reintentamos cada mitad, hasta llegar a frases sueltas: así el resultado siempre cuadra con lo enviado.
+async function callClaudeSplit(texts, key, model) {
+  try { return await callClaude(texts, key, model); }
+  catch (e) {
+    if (e?.code !== "LEN" || texts.length < 2) throw e;
+    const mid = texts.length >> 1;
+    const [a, b] = await Promise.all([
+      callClaudeSplit(texts.slice(0, mid), key, model),
+      callClaudeSplit(texts.slice(mid), key, model),
+    ]);
+    return a.concat(b);
+  }
 }
 
 // Traduce usando la caché: solo se llama a Claude por las frases que no estén guardadas.
@@ -172,7 +197,7 @@ async function translate(texts) {
   const out = hits.map((h) => (h ? h.es : null));
   const miss = out.map((v, i) => (v === null ? i : -1)).filter((i) => i >= 0);
   if (miss.length) {
-    const fresh = await callClaude(miss.map((i) => texts[i]), c.anthropicKey, model);
+    const fresh = await callClaudeSplit(miss.map((i) => texts[i]), c.anthropicKey, model);
     await Promise.all(miss.map((i, j) => {
       out[i] = fresh[j];
       return idbPut("tr", { k: keys[i], es: fresh[j], t: Date.now() }).catch(() => {});

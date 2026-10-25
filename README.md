@@ -2,7 +2,7 @@
 
 <p align="center">
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
-  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.7.0-fa5a28">
+  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.7.1-fa5a28">
   <img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-green">
   <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-lightgrey">
   <img alt="Claves locales" src="https://img.shields.io/badge/claves-solo%20en%20tu%20navegador-success">
@@ -53,6 +53,8 @@ Los subtítulos automáticos en español de las plataformas suelen ser malos. Aq
 3. **Cargar descomprimida** → elige la carpeta que contiene el archivo `manifest.json` (la del ZIP descomprimido, o `extension/` si clonaste el repo).
 4. Haz clic en el icono de la extensión y pega tu **API key de Anthropic**. (Opcional: API key de ElevenLabs y Voice ID.)
 5. Pulsa **Probar traducción** y **Guardar todo**.
+
+> Al abrir Chrome verás un aviso de «extensiones en modo de desarrollador». Es normal con las extensiones cargadas así; puedes cerrarlo. Cuando LiveDub esté en la Chrome Web Store (está en la hoja de ruta), se instalará con un clic y no saldrá.
 
 ## Cómo conseguir las claves
 
@@ -136,7 +138,7 @@ Guarda en tu navegador (IndexedDB) cada **traducción** y cada **audio de Eleven
 1. En **YouTube** lee la **transcripción completa** (la del botón «Mostrar transcripción»), aunque el CC esté apagado y con la pestaña en segundo plano. Si el vídeo no tiene transcripción, pasa al modo «live» (punto 4).
 2. En reproductores **Video.js** (como Awwwards Academy) lee directamente la pista en inglés, **aunque el CC esté apagado o en español**.
 3. Si no hay Video.js, usa las pistas de texto del `<video>`.
-4. Como último recurso, el **modo «live»**: lee el texto que pinta el reproductor en pantalla. Ahí necesitas tener el CC activado; si pasan unos segundos sin detectar subtítulos, el botón avisa «activa CC».
+4. Como último recurso, el **modo «live»**: lee el texto que pinta el reproductor en pantalla. Ahí necesitas tener el CC activado (en YouTube lo activa LiveDub por ti); si pasan unos segundos sin detectar subtítulos, el botón avisa «activa CC».
 
 Si los subtítulos ya vienen en español, se salta la traducción y solo locuta.
 </details>
@@ -145,9 +147,36 @@ Si los subtítulos ya vienen en español, se salta la traducción y solo locuta.
 
 Usas **tus propias claves**. Haiku es muy barato (céntimos por hora de vídeo) y la caché evita pagar dos veces la misma frase. ElevenLabs consume créditos de tu plan; sin ElevenLabs el coste de voz es cero.
 
-## Privacidad y uso responsable
+## Privacidad, permisos y uso responsable
 
-- Las claves se guardan solo en tu navegador. El texto de los subtítulos se envía a Anthropic (traducción) y, si lo activas, a ElevenLabs (voz). No hay ningún otro servidor.
+LiveDub **no tiene servidor propio, ni analítica, ni telemetría**. El código es abierto y pequeño para que puedas auditarlo.
+
+**Qué datos salen de tu navegador:** solo el **texto de los subtítulos** que estás doblando, y únicamente después de pulsar «on».
+
+- Se envía a **Anthropic** (`api.anthropic.com`) para traducirlo, con tu clave.
+- Se envía a **ElevenLabs** (`api.elevenlabs.io`) para generar la voz, **solo si lo configuras**, con tu clave.
+- No hay ninguna otra conexión. Tus claves se guardan en `chrome.storage.local`, en tu navegador.
+
+**Por qué pide esos permisos** (Chrome mostrará «leer y cambiar datos en todos los sitios web»; es por lo primero de esta tabla):
+
+| Permiso | Para qué lo usa |
+|---|---|
+| Scripts en todas las páginas (`<all_urls>`, todos los marcos) | Detectar si la página tiene un vídeo y pintar el botón «ES ▸ off». Hace falta porque los cursos usan reproductores en muchos dominios e *iframes*. |
+| `storage` | Guardar tus ajustes y claves en tu navegador. |
+| `unlimitedStorage` | Caché local de traducciones y audios, que puede superar el límite normal. |
+| `https://api.anthropic.com/*` | Llamar a Claude para traducir. |
+| `https://api.elevenlabs.io/*` | Llamar a ElevenLabs para la voz y la lista de voces. |
+
+**Qué hace en una página:**
+
+- **Sin pulsar el botón**, solo busca un `<video>` y dibuja el botón. No lee subtítulos ni envía nada.
+- **Al pulsar «on»**, lee los subtítulos del reproductor (en YouTube abre un momento el panel de transcripción para leerlo) y los traduce.
+- **No lee cookies, contraseñas ni formularios**, ni usa el almacenamiento de las páginas. Lo único que guarda es su propia caché.
+
+¿Has encontrado algo que no cuadra? Mira [SECURITY.md](SECURITY.md).
+
+**Uso responsable**
+
 - Úsala para **uso personal en contenido al que tienes acceso legítimo**. No redistribuyas ni grabes material de terceros doblado. Respeta los términos de cada plataforma.
 - Con el plan gratuito de ElevenLabs, las voces clonadas no se pueden usar por API (error 401); usa una voz de la biblioteca.
 
@@ -162,7 +191,11 @@ LiveDub tiene dos "partes" y cada una escribe en su propia consola:
 
 **Qué buscar**
 
-- En la consola de la página: `[DobES] subtítulo detectado: …` confirma que lee los subtítulos, y `[DobES] Haiku: EN → ES` muestra cada traducción.
+- En la consola de la página:
+  - `[DobES] transcripción de YouTube leída: N líneas → M frases` confirma que en YouTube lee la transcripción completa.
+  - `[DobES] YouTube: este vídeo no ofrece transcripción` indica que ese vídeo no la tiene y usa el modo en pantalla.
+  - `[DobES] subtítulo detectado: …` confirma que lee los subtítulos en el modo en pantalla.
+  - `[DobES] Haiku: EN → ES` muestra cada traducción.
 - En el service worker: los errores de las APIs con su código y el detalle. Si algo falla, los ajustes y el aviso junto al botón ya te dicen **qué ha pasado y qué hacer**; esta consola es el detalle técnico.
 - Si el service worker aparece como «inactivo», es normal: Chrome lo duerme y lo despierta cuando hace falta. Pulsar el enlace lo despierta.
 
@@ -170,7 +203,7 @@ LiveDub tiene dos "partes" y cada una escribe en su propia consola:
 
 Aparece en rojo cuando la extensión ha registrado algún error, aunque ya esté resuelto (por ejemplo, un fallo de ElevenLabs o una petición cancelada al cambiar de página). Púlsalo para leer el mensaje y la línea del código, y usa **«Borrar todo»** para limpiar el historial. Si salen errores nuevos mientras la usas con normalidad, abre un [issue](../../issues) con el texto (sin tus claves).
 
-**Para reportar un fallo**, copia: la versión (ajustes, arriba), los mensajes de `DobES` de la consola de la página, y el error del service worker.
+**Para reportar un fallo**, abre un [issue](../../issues/new/choose) y copia: la versión (ajustes, arriba), la plataforma, la voz que usabas, los mensajes de `DobES` de la consola de la página y el error del service worker. Nunca pegues tus claves.
 
 ## Solución de problemas
 
@@ -180,12 +213,16 @@ Aparece en rojo cuando la extensión ha registrado algún error, aunque ya esté
 
 ## Hoja de ruta
 
-- [ ] Otros idiomas de destino (catalán, francés, portugués…): idioma configurable en Ajustes, prompt y voz dinámicos. *En pausa hasta que haya demanda o lo proponga la comunidad.*
+- [ ] Probar y documentar otros navegadores Chromium (Edge, Opera, Brave).
+- [ ] Publicar en la Chrome Web Store (y en la tienda de Edge).
+- [ ] Versión para Firefox (escritorio y Android).
+- [ ] Más plataformas probadas (Udemy, Vimeo, Coursera…), con lector propio si hace falta.
 - [ ] Modo por captura de audio (para vídeos sin subtítulos): tabCapture + STT en streaming.
-- [ ] Selectores por sitio para más plataformas.
+- [ ] Otros idiomas de destino (catalán, francés, portugués…): idioma configurable en Ajustes, prompt y voz dinámicos. *En pausa hasta que haya demanda o lo proponga la comunidad.*
 - [ ] Más estilos de subtítulo (borde, color de fondo).
 - [ ] Voz local gratuita de mejor calidad.
-- [ ] Publicar en Chrome Web Store.
+
+¿Quieres ayudar con alguna? Mira [CONTRIBUTING.md](CONTRIBUTING.md) o cuéntalo en [Discussions](../../discussions).
 
 Más detalle de cambios en el [CHANGELOG](CHANGELOG.md). ¿Ideas o fallos? Abre un [issue](../../issues). Guía de contribución en [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -193,20 +230,68 @@ Más detalle de cambios en el [CHANGELOG](CHANGELOG.md). ¿Ideas o fallos? Abre 
 
 [MIT](LICENSE) © Douglas Ortega
 
+LiveDub es un proyecto independiente y **no está afiliado, respaldado ni patrocinado** por Anthropic, ElevenLabs, Google/YouTube, Awwwards ni ninguna otra plataforma mencionada. Los nombres y marcas pertenecen a sus propietarios.
+
 ---
 
 <a id="english"></a>
 
 # LiveDub — live Spanish dubbing (EN)
 
-A Chrome (Manifest V3) extension that **dubs English video courses into Spanish in near real time**. It reads the player's English subtitles, translates them with **Claude**, and speaks them with **ElevenLabs** or the free browser voice, ducking the original audio. Built for courses like Awwwards Academy.
+A Chrome (Manifest V3) extension that **dubs English video courses into Spanish in near real time**. It reads the player's English subtitles, translates them with **Claude**, and speaks them with **ElevenLabs** or the free browser voice, ducking the original audio. Built for courses like Awwwards Academy, and it works on YouTube too.
 
-**Languages:** currently **English → Spanish only** (Spain Spanish). Other target languages are not planned until there is demand — suggest one in [Discussions → Ideas](../../discussions) or contribute it. **Tested on:** Awwwards Academy (Video.js, works even with CC off) and YouTube (reads the full transcript, so it keeps dubbing in a background tab; falls back to on-screen captions if the video has no transcript). Other sites work if the player exposes `textTracks` or renders captions on screen. Videos without subtitles can't be dubbed yet. Tried another platform? Tell us in Discussions → Show and tell.
+**Highlights:** reads English tracks even with CC off (Video.js) · on YouTube it reads the full transcript, so it keeps dubbing in a background tab · context-aware translation that fixes auto-caption errors · ElevenLabs / browser voice switch with remembered failures · customizable on-screen Spanish subtitle · local cache to avoid re-spending tokens and credits · zero dependencies, no server, keys stay in `chrome.storage.local`.
 
-**Highlights:** reads English tracks even with CC off (Video.js) · context-aware translation that fixes auto-caption errors · ElevenLabs / browser voice switch with remembered failures · customizable on-screen Spanish subtitle · local cache to avoid re-spending tokens and credits · zero dependencies, no server, keys stay in `chrome.storage.local`.
+**Languages:** currently **English → Spanish only** (Spain Spanish). Other target languages are not planned until there is demand — suggest one in [Discussions → Ideas](../../discussions) or contribute it.
 
-**Install:** download the ZIP from the [latest release](../../releases/latest) (or clone), open `chrome://extensions`, enable *Developer mode*, *Load unpacked* → select `extension/`, then paste your Anthropic API key in the extension options (ElevenLabs key + Voice ID optional).
+### Install
 
-**Use responsibly:** personal use on content you are entitled to watch; don't redistribute dubbed third-party material; follow each platform's terms.
+1. Download the ZIP from the [latest release](../../releases/latest) and unzip it into a folder you won't delete (or clone the repo and use `extension/`).
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and pick the folder that contains `manifest.json`.
+4. Click the LiveDub icon, paste your **Anthropic API key** (ElevenLabs key + Voice ID are optional), press **Test translation** and **Save all**.
+
+Chrome will show a "developer mode extensions" notice on startup; that's normal for unpacked extensions. To update, unzip the new version over the same folder, press ↻ in `chrome://extensions` and reload the page.
+
+### Get your keys
+
+- **Anthropic (required):** <https://console.anthropic.com> → *API keys* → *Create key*. You need credit on the account; a few dollars cover many hours of video.
+- **ElevenLabs (optional):** <https://elevenlabs.io> → *Settings → Developers → API keys*. Copy the **Voice ID** from the voice in your library. On the free plan, *cloned* voices don't work through the API (401 error); use a library voice.
+- Without ElevenLabs, the free browser voice is used (voices called "Natural" in Edge sound much better).
+
+### Use
+
+Open a lesson and click the orange **"ES ▸ off"** button over the video so it turns into **"ES ▸ on"**, then press play. The 🔊/🔈 button switches between ElevenLabs and the browser voice. Voice, model and subtitle appearance are in the settings (light, auto and dark themes).
+
+### Compatibility
+
+| Platform | Status | How it reads subtitles |
+|---|---|---|
+| Awwwards Academy (Video.js) | ✅ Tested | English track, even with CC off |
+| YouTube | ✅ Tested | Full transcript (works in a background tab). Falls back to on-screen captions if the video has no transcript |
+| Other Video.js players | 🟡 Should work | Text tracks. Untested |
+| Other sites | 🟡 Depends | If they expose `textTracks` or render captions on screen. Untested |
+| Videos **without** subtitles | ❌ Not supported | Nothing to read (audio mode is on the roadmap) |
+
+Tried another platform? Tell us in [Discussions → Show and tell](../../discussions).
+
+### Troubleshooting & diagnostics
+
+- **Nothing plays:** check the button says "on". Open the page console (F12), filter by `DobES` and look for "subtítulo detectado" (on-screen mode) or "transcripción de YouTube leída" (YouTube).
+- **Browser voice instead of ElevenLabs:** ElevenLabs failed and was switched off. Check the notice next to the button, or use *Test ElevenLabs* in the settings.
+- **Service worker logs:** in `chrome://extensions`, click **service worker** on the LiveDub card. The *Network* tab shows each request to `api.anthropic.com` and `api.elevenlabs.io` (401 = key, 402/429 = credits or rate limit).
+- **Reporting a bug:** open an [issue](../../issues/new/choose) with the version, platform, voice used, the `DobES` console lines and any service worker error. **Never paste your keys.**
+
+### Privacy & permissions
+
+No server of its own, no analytics, no telemetry. The only data that leaves your browser is the **subtitle text** being dubbed, after you press "on": it goes to **Anthropic** (translation) and, if you enable it, to **ElevenLabs** (voice), using your own keys. Keys live in `chrome.storage.local`. It does not read cookies, passwords or forms.
+
+The extension asks for access to all sites only to detect a video and draw its button; it does nothing else until you press "on". Other permissions: `storage` and `unlimitedStorage` (settings and local cache), plus the two API hosts above. Found something that doesn't add up? See [SECURITY.md](SECURITY.md).
+
+### Costs, responsible use and roadmap
+
+You use **your own keys**: Haiku is very cheap and the cache avoids paying twice for the same sentence; ElevenLabs uses your plan's credits. **Use responsibly:** personal use on content you are entitled to watch; don't redistribute dubbed third-party material; follow each platform's terms. See the roadmap (in Spanish, above) and [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to help.
+
+LiveDub is an independent project and is **not affiliated with or endorsed by** Anthropic, ElevenLabs, Google/YouTube, Awwwards or any other mentioned platform.
 
 Licensed under [MIT](LICENSE).

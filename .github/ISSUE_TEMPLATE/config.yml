@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Preguntas y ayuda / Questions & help
+    url: https://github.com/lukybrou/livedub/discussions/categories/q-a
+    about: Instalación, claves, ajustes y costes. Mejor en Discussions que en un issue.
+  - name: 🔒 Vulnerabilidad de seguridad / Security issue
+    url: https://github.com/lukybrou/livedub/security/advisories/new
+    about: No abras un issue público. Usa el aviso privado.
