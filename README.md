@@ -2,7 +2,7 @@
 
 <p align="center">
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white">
-  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.5.2-fa5a28">
+  <img alt="Versión" src="https://img.shields.io/badge/versi%C3%B3n-0.6.0-fa5a28">
   <img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-green">
   <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-lightgrey">
   <img alt="Claves locales" src="https://img.shields.io/badge/claves-solo%20en%20tu%20navegador-success">

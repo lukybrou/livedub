@@ -100,8 +100,9 @@
     p.textContent = e.tip + (extra ? " " + extra : "");
     banner.append(t, p);
     Object.assign(banner.style, {
-      position: "fixed", zIndex: 2147483647, maxWidth: "340px", padding: "10px 12px", borderRadius: "10px",
-      background: "#1a1a1a", color: "#fff", font: "12px/1.45 system-ui", boxShadow: "0 4px 16px rgba(0,0,0,.4)", cursor: "pointer",
+      position: "fixed", zIndex: 2147483647, maxWidth: "340px", padding: "11px 14px", borderRadius: "12px",
+      background: "rgba(20,22,28,.96)", color: "#f1f3f8", font: "12.5px/1.5 system-ui, sans-serif", boxShadow: "0 12px 32px rgba(0,0,0,.5)", cursor: "pointer",
+      border: "1px solid rgba(255,255,255,.1)", borderLeft: "3px solid #fa5a28",
     });
     const r = (voiceBtn && voiceBtn.style.display !== "none" ? voiceBtn : btn).getBoundingClientRect();
     banner.style.top = r.bottom + 8 + "px";
@@ -126,9 +127,9 @@
     btn = document.createElement("button");
     btn.textContent = "ES ▸ off";
     Object.assign(btn.style, {
-      position: "fixed", zIndex: 2147483647, padding: "6px 12px", border: "0", borderRadius: "999px",
-      background: "#fa5a28", color: "#fff", font: "600 12px system-ui", cursor: "pointer", opacity: ".9",
-      boxShadow: "0 2px 8px rgba(0,0,0,.3)", maxWidth: "320px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+      position: "fixed", zIndex: 2147483647, padding: "7px 14px", border: "1px solid rgba(255,255,255,.18)", borderRadius: "999px",
+      background: "linear-gradient(135deg,#fa5a28,#e23d3d)", color: "#fff", font: "700 12px system-ui, sans-serif", letterSpacing: ".2px", cursor: "pointer", opacity: ".95",
+      boxShadow: "0 4px 14px rgba(250,90,40,.4)", maxWidth: "320px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
     });
     btn.onclick = () => (on ? stop() : start());
     document.documentElement.appendChild(btn);
@@ -137,9 +138,9 @@
     voiceBtn = document.createElement("button");
     voiceBtn.style.display = "none";
     Object.assign(voiceBtn.style, {
-      position: "fixed", zIndex: 2147483647, padding: "4px 10px", border: "0", borderRadius: "999px",
-      background: "rgba(26,26,26,.85)", color: "#fff", font: "600 11px system-ui", cursor: "pointer",
-      boxShadow: "0 2px 8px rgba(0,0,0,.3)", whiteSpace: "nowrap",
+      position: "fixed", zIndex: 2147483647, padding: "5px 11px", border: "1px solid rgba(255,255,255,.14)", borderRadius: "999px",
+      background: "rgba(20,22,28,.88)", color: "#f1f3f8", font: "600 11px system-ui, sans-serif", cursor: "pointer",
+      boxShadow: "0 4px 12px rgba(0,0,0,.35)", whiteSpace: "nowrap",
     });
     voiceBtn.onclick = async () => {
       await send({ type: "setEleven", enabled: elState !== "ready" });

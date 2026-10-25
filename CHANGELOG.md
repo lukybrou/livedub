@@ -1,5 +1,11 @@
 # Changelog — LiveDub
 
+## v0.6.0 — 2026-10-25
+- Rediseño: nueva página de ajustes oscura y moderna (tarjetas por sección, interruptores, sliders, cabecera fija con «Guardar todo»).
+- Nuevo icono de la extensión (play + ondas de voz) en 16/32/48/128 px.
+- Botones y avisos sobre el vídeo con el mismo estilo (degradado naranja, vidrio oscuro).
+- La versión se muestra en los ajustes.
+
 ## v0.5.2 — 2026-10-25
 - Fix: con ElevenLabs, al terminar una frase se volvía a leer la misma hasta que cambiaba el subtítulo, y al llegar la siguiente se solapaban las dos. Causa: el audio terminado seguía referenciado y el planificador llamaba a `play()` en cada tick, que reinicia un audio acabado. Ahora el audio se libera al terminar y solo se reanuda lo que pausó la propia extensión al pausar el vídeo.
 - Al cortar una frase por retraso se libera su promesa pendiente (sin colas huérfanas).

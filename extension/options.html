@@ -2,128 +2,215 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LiveDub — Ajustes</title>
 <style>
-  body{font:15px/1.5 system-ui,sans-serif;max-width:620px;margin:40px auto;padding:0 16px 120px;color:#1a1a1a}
-  h2{margin-top:36px;font-size:16px;border-top:1px solid #e5e5e5;padding-top:20px}
-  label{display:block;margin:16px 0 4px;font-weight:600}
-  input[type=text],input[type=password],input[type=number],select{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font:inherit;box-sizing:border-box}
-  input[type=range]{width:100%}
-  small{color:#666;display:block;margin-top:4px}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  button{margin:16px 8px 0 0;padding:10px 16px;border:0;border-radius:6px;background:#fa5a28;color:#fff;font:inherit;cursor:pointer}
-  button.sec{background:#eee;color:#1a1a1a}
-  .val{font-weight:400;color:#666}
-  label.chk{display:flex;align-items:center;gap:8px;cursor:pointer}
-  label.chk input{width:18px;height:18px}
-  #capPreviewWrap{margin-top:12px;padding:46px 16px 18px;border-radius:8px;text-align:center;background:linear-gradient(135deg,#2b3a55,#6b4f3a 55%,#222)}
+  :root{
+    --bg:#0e1015;--card:#161a22;--card2:#1c212b;--line:#262c38;--text:#e9ecf3;--muted:#8d95a8;
+    --acc:#fa5a28;--acc2:#e23d3d;--ok:#39d98a;--err:#ff6b6b;--r:14px;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{margin:0;background:radial-gradient(900px 400px at 85% -120px,rgba(250,90,40,.18),transparent 70%),var(--bg);
+    color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 140px}
+
+  /* Cabecera */
+  header{position:sticky;top:0;z-index:20;margin:0 -20px;padding:14px 20px;display:flex;align-items:center;gap:14px;
+    background:rgba(14,16,21,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .logo{width:40px;height:40px;flex:none;filter:drop-shadow(0 4px 12px rgba(250,90,40,.35))}
+  .brand{flex:1;min-width:0}
+  .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+  .brand h1 span{font-size:11px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+  .brand p{margin:0;font-size:12.5px;color:var(--muted)}
+  #save{margin:0}
+
+  /* Tarjetas */
+  section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 20px;margin-top:20px}
+  section h2{margin:0 0 4px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px;border:0;padding:0}
+  section h2 i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,rgba(250,90,40,.22),rgba(226,61,61,.14));font-size:14px}
+  section h2 em{font-style:normal;font-size:11px;font-weight:600;color:var(--muted);margin-left:auto}
+  .lead{margin:0 0 6px;color:var(--muted);font-size:13px}
+
+  label{display:block;margin:18px 0 6px;font-weight:600;font-size:13px;color:#cfd4e0}
+  input[type=text],input[type=password],input[type=number],select{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);font:inherit;
+    transition:border-color .15s,box-shadow .15s}
+  input::placeholder{color:#5d657a}
+  input:focus,select:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px rgba(250,90,40,.2)}
+  small{display:block;margin-top:6px;color:var(--muted);font-size:12.5px;line-height:1.45}
+  .val{font-weight:600;color:var(--acc);float:right;font-variant-numeric:tabular-nums}
+
+  /* Sliders */
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:var(--line);outline:0;margin:10px 0 2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;
+    border:3px solid var(--acc);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  input[type=range]:focus::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(250,90,40,.25)}
+
+  /* Interruptores */
+  label.chk{display:flex;align-items:center;gap:12px;cursor:pointer;margin:16px 0 4px;font-size:14px;color:var(--text)}
+  label.chk input{-webkit-appearance:none;appearance:none;flex:none;width:40px;height:22px;border-radius:99px;background:#2b3240;position:relative;
+    cursor:pointer;transition:background .18s;margin:0}
+  label.chk input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  label.chk input:checked{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+  label.chk input:checked::after{transform:translateX(18px)}
+  label.chk input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+  /* Botones */
+  button{margin:16px 8px 0 0;padding:10px 16px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;
+    font-weight:600;font-size:13.5px;font-family:inherit;cursor:pointer;transition:transform .12s,filter .12s,box-shadow .12s;box-shadow:0 4px 14px rgba(250,90,40,.28)}
+  button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  button:active{transform:none}
+  button.sec{background:var(--card2);color:var(--text);border:1px solid var(--line);box-shadow:none}
+  button.sec:hover{border-color:#3a4254;filter:none}
+
+  /* Vista previa del subtítulo */
+  #capPreviewWrap{margin-top:14px;padding:54px 16px 20px;border-radius:12px;text-align:center;border:1px solid var(--line);
+    background:linear-gradient(135deg,#2b3a55,#6b4f3a 55%,#222)}
   #capPreview{display:inline-block;max-width:80%;padding:6px 12px;border-radius:8px;color:#fff}
+
   #elState{margin-top:10px}
+  #elState:empty{display:none}
   #elState .box{box-shadow:none;font-size:13px}
   #elState button{margin:8px 0 0}
-  #stats{margin-top:8px;color:#333}
-  #msg{position:sticky;bottom:12px;margin-top:20px;word-break:break-word}
-  .box{border-radius:8px;padding:12px 14px;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-  .box.ok{background:#eaf6ea;color:#1f6b1f}
-  .box.err{background:#fdecea;color:#8a1f12}
+  #stats{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line);color:var(--text);font-size:13.5px}
+
+  /* Mensajes */
+  #msg{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:min(680px,calc(100% - 32px));z-index:30;word-break:break-word}
+  #msg:empty{display:none}
+  .box{border-radius:12px;padding:12px 14px;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.45);border:1px solid var(--line);background:var(--card2);color:var(--text)}
+  .box.ok{background:#12261d;border-color:#1f5a3d;color:#b8f5d6}
+  .box.err{background:#2a1517;border-color:#6b2a2e;color:#ffc9c9}
+  .box.info{background:var(--card2);color:var(--text)}
   .box .t{font-weight:700;margin-bottom:4px}
   .box .tip{margin:4px 0 8px}
-  .box .raw{font:12px/1.4 ui-monospace,monospace;opacity:.75}
-  .box.info{background:#f2f2f2;color:#333}
+  .box .raw{font:12px/1.4 ui-monospace,Consolas,monospace;opacity:.7}
+
+  footer{margin-top:28px;text-align:center;color:var(--muted);font-size:12.5px}
+  footer a{color:var(--muted)}
 </style>
 </head>
 <body>
-<h1>LiveDub</h1>
-<button id="save">Guardar todo</button>
+<div class="wrap">
 
-<h2>Traducción (Anthropic)</h2>
-<label for="anthropicKey">API key de Anthropic</label>
-<input id="anthropicKey" type="password" placeholder="sk-ant-...">
-<small>Se guarda solo en este navegador (chrome.storage.local).</small>
-<label for="model">Modelo de traducción</label>
-<select id="model">
-  <option value="claude-haiku-4-5">Haiku 4.5 (rápido y barato, recomendado)</option>
-  <option value="claude-sonnet-4-5">Sonnet 4.5 (más fino con la jerga)</option>
-</select>
-<label for="modelCustom">Otro modelo (opcional)</label>
-<input id="modelCustom" type="text" placeholder="ID exacto del modelo, si quieres usar otro">
-<small>Si lo rellenas, tiene prioridad sobre la lista de arriba.</small>
-<button id="testTr" class="sec">Probar traducción</button>
+<header>
+  <svg class="logo" viewBox="0 0 128 128" aria-hidden="true">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fa5a28"/><stop offset="1" stop-color="#d93a3a"/></linearGradient></defs>
+    <rect width="128" height="128" rx="30" fill="url(#g)"/>
+    <path d="M42 34v60l44-30z" fill="#fff"/>
+    <path d="M97 46c5 11 5 25 0 36M106 38c8 15 8 37 0 52" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+  </svg>
+  <div class="brand">
+    <h1>LiveDub <span id="ver">v0.5.2</span></h1>
+    <p>Doblaje en vivo al español para tus cursos en inglés</p>
+  </div>
+  <button id="save">Guardar todo</button>
+</header>
 
-<h2>Voz de ElevenLabs (opcional, gasta créditos)</h2>
-<label class="chk"><input type="checkbox" id="elevenEnabled"> Usar ElevenLabs</label>
-<small>Apágalo para usar solo la voz del navegador (gratis) sin tener que borrar la clave ni el Voice ID. También puedes cambiarlo desde el botón sobre el vídeo.</small>
-<div id="elState"></div>
-<label for="elevenKey">API key de ElevenLabs</label>
-<input id="elevenKey" type="password">
-<label for="elevenVoice">Voice ID de ElevenLabs</label>
-<input id="elevenVoice" type="text">
-<small>Clave e ID van juntos. Sin ellos se usa la voz del navegador (gratis).</small>
-<label for="elevenModel">Modelo de voz</label>
-<select id="elevenModel">
-  <option value="eleven_flash_v2_5">Flash v2.5 (rápido, más barato)</option>
-  <option value="eleven_turbo_v2_5">Turbo v2.5 (equilibrado)</option>
-  <option value="eleven_multilingual_v2">Multilingual v2 (mejor calidad, más lento y caro)</option>
-</select>
+<section>
+  <h2><i>🌐</i> Traducción <em>obligatoria</em></h2>
+  <p class="lead">Claude traduce los subtítulos en inglés al español.</p>
+  <label for="anthropicKey">API key de Anthropic</label>
+  <input id="anthropicKey" type="password" placeholder="sk-ant-...">
+  <small>Se guarda solo en este navegador (chrome.storage.local). Nunca sale de aquí salvo hacia api.anthropic.com.</small>
+  <label for="model">Modelo de traducción</label>
+  <select id="model">
+    <option value="claude-haiku-4-5">Haiku 4.5 (rápido y barato, recomendado)</option>
+    <option value="claude-sonnet-4-5">Sonnet 4.5 (más fino con la jerga)</option>
+  </select>
+  <label for="modelCustom">Otro modelo (opcional)</label>
+  <input id="modelCustom" type="text" placeholder="ID exacto del modelo, si quieres usar otro">
+  <small>Si lo rellenas, tiene prioridad sobre la lista de arriba.</small>
+  <button id="testTr" class="sec">Probar traducción</button>
+</section>
 
-<label for="elevenStability">Estabilidad <span class="val" id="elevenStabilityV"></span></label>
-<input id="elevenStability" type="range" min="0" max="1" step="0.05" value="0.5">
-<small>Más baja = más expresiva y variable. Más alta = más monótona y constante. Para un curso, 0,5–0,7 suele ir bien.</small>
-<label for="elevenSimilarity">Similitud con la voz <span class="val" id="elevenSimilarityV"></span></label>
-<input id="elevenSimilarity" type="range" min="0" max="1" step="0.05" value="0.75">
-<label for="elevenSpeed">Velocidad <span class="val" id="elevenSpeedV"></span></label>
-<input id="elevenSpeed" type="range" min="0.7" max="1.2" step="0.05" value="1">
-<small>Con ElevenLabs, además, la extensión acelera cada frase lo justo para no solaparse con la siguiente.</small>
+<section>
+  <h2><i>🎙️</i> Voz de ElevenLabs <em>opcional · gasta créditos</em></h2>
+  <label class="chk"><input type="checkbox" id="elevenEnabled"> Usar ElevenLabs</label>
+  <small>Apágalo para usar solo la voz del navegador (gratis) sin borrar la clave ni el Voice ID. También puedes cambiarlo desde el botón sobre el vídeo.</small>
+  <div id="elState"></div>
+  <label for="elevenKey">API key de ElevenLabs</label>
+  <input id="elevenKey" type="password">
+  <label for="elevenVoice">Voice ID de ElevenLabs</label>
+  <input id="elevenVoice" type="text">
+  <small>Clave e ID van juntos. Sin ellos se usa la voz del navegador (gratis).</small>
+  <label for="elevenModel">Modelo de voz</label>
+  <select id="elevenModel">
+    <option value="eleven_flash_v2_5">Flash v2.5 (rápido, más barato)</option>
+    <option value="eleven_turbo_v2_5">Turbo v2.5 (equilibrado)</option>
+    <option value="eleven_multilingual_v2">Multilingual v2 (mejor calidad, más lento y caro)</option>
+  </select>
 
-<div id="voicesBox"></div>
-<button id="test" class="sec">Probar ElevenLabs</button>
-<button id="voices" class="sec">Cargar mis voces</button>
+  <label for="elevenStability">Estabilidad <span class="val" id="elevenStabilityV"></span></label>
+  <input id="elevenStability" type="range" min="0" max="1" step="0.05" value="0.5">
+  <small>Más baja = más expresiva y variable. Más alta = más monótona y constante. Para un curso, 0,5–0,7 suele ir bien.</small>
+  <label for="elevenSimilarity">Similitud con la voz <span class="val" id="elevenSimilarityV"></span></label>
+  <input id="elevenSimilarity" type="range" min="0" max="1" step="0.05" value="0.75">
+  <label for="elevenSpeed">Velocidad <span class="val" id="elevenSpeedV"></span></label>
+  <input id="elevenSpeed" type="range" min="0.7" max="1.2" step="0.05" value="1">
+  <small>Con ElevenLabs, además, la extensión acelera cada frase lo justo para no solaparse con la siguiente.</small>
 
-<h2>Voz del navegador (gratis)</h2>
-<label for="browserVoice">Voz</label>
-<select id="browserVoice"></select>
-<small>Es la que se usa si no hay ElevenLabs. Las voces «Natural» / «Online» (por ejemplo en Edge) suenan mucho mejor que las locales.</small>
-<button id="testBr" class="sec">Probar voz del navegador</button>
+  <div id="voicesBox"></div>
+  <button id="test" class="sec">Probar ElevenLabs</button>
+  <button id="voices" class="sec">Cargar mis voces</button>
+</section>
 
-<h2>Subtítulo sobre el vídeo</h2>
-<label class="chk"><input type="checkbox" id="showCaptions"> Mostrar la traducción como subtítulo sobre el vídeo</label>
-<small>Es un subtítulo propio de la extensión (no el de la plataforma), así que todo su aspecto se puede cambiar. Se aplica al instante en las pestañas abiertas.</small>
-<div id="capPreviewWrap"><div id="capPreview">Así se verá el subtítulo traducido sobre el vídeo.</div></div>
-<label for="capSize">Tamaño <span class="val" id="capSizeV"></span></label>
-<input id="capSize" type="range" min="12" max="40" step="1" value="18">
-<label for="capBg">Opacidad del fondo <span class="val" id="capBgV"></span></label>
-<input id="capBg" type="range" min="0" max="1" step="0.05" value="0.6">
-<label for="capText">Opacidad del texto <span class="val" id="capTextV"></span></label>
-<input id="capText" type="range" min="0.3" max="1" step="0.05" value="1">
-<label for="capBottom">Altura desde el borde inferior del vídeo (px) <span class="val" id="capBottomV"></span></label>
-<input id="capBottom" type="range" min="0" max="300" step="2" value="56">
-<small>Más bajo = más cerca del borde de abajo. La barra de control del reproductor ocupa unos 45 px.</small>
-<label for="capWidth">Ancho máximo (% del vídeo) <span class="val" id="capWidthV"></span></label>
-<input id="capWidth" type="range" min="30" max="95" step="1" value="70">
-<label for="capFont">Fuente</label>
-<select id="capFont">
-  <option value="system-ui, sans-serif">Sistema (por defecto)</option>
-  <option value="Arial, Helvetica, sans-serif">Arial</option>
-  <option value="Verdana, Geneva, sans-serif">Verdana</option>
-  <option value="Tahoma, sans-serif">Tahoma</option>
-  <option value="&quot;Trebuchet MS&quot;, sans-serif">Trebuchet MS</option>
-  <option value="Georgia, serif">Georgia (con serifa)</option>
-  <option value="&quot;Times New Roman&quot;, serif">Times New Roman</option>
-  <option value="&quot;Courier New&quot;, monospace">Courier New (monoespaciada)</option>
-</select>
-<small>Solo fuentes que ya trae el sistema. Si quieres otra concreta, dímelo y la añadimos.</small>
-<label class="chk"><input type="checkbox" id="capBold"> Texto en negrita</label>
+<section>
+  <h2><i>🔈</i> Voz del navegador <em>gratis</em></h2>
+  <label for="browserVoice">Voz</label>
+  <select id="browserVoice"></select>
+  <small>Es la que se usa si no hay ElevenLabs. Las voces «Natural» / «Online» (por ejemplo en Edge) suenan mucho mejor que las locales.</small>
+  <button id="testBr" class="sec">Probar voz del navegador</button>
+</section>
 
-<h2>Caché (ahorra tokens y créditos)</h2>
-<div id="stats">Cargando…</div>
-<small>Guarda cada traducción y cada audio ya generado. Si vuelves a ver la misma frase con la misma voz, no se gasta nada.</small>
-<label for="cacheMaxMb">Límite de caché de audio (MB)</label>
-<input id="cacheMaxMb" type="number" min="50" max="5000" step="50" value="500">
-<small>Al superarlo se borran los audios más antiguos. Un audio ocupa unos 30 MB por hora de vídeo.</small>
-<button id="statsBtn" class="sec">Actualizar</button>
-<button id="clear" class="sec">Vaciar caché</button>
+<section>
+  <h2><i>💬</i> Subtítulo sobre el vídeo</h2>
+  <label class="chk"><input type="checkbox" id="showCaptions"> Mostrar la traducción como subtítulo sobre el vídeo</label>
+  <small>Es un subtítulo propio de LiveDub (no el de la plataforma), así que todo su aspecto se puede cambiar. Se aplica al instante en las pestañas abiertas.</small>
+  <div id="capPreviewWrap"><div id="capPreview">Así se verá el subtítulo traducido sobre el vídeo.</div></div>
+  <label for="capSize">Tamaño <span class="val" id="capSizeV"></span></label>
+  <input id="capSize" type="range" min="12" max="40" step="1" value="18">
+  <label for="capBg">Opacidad del fondo <span class="val" id="capBgV"></span></label>
+  <input id="capBg" type="range" min="0" max="1" step="0.05" value="0.6">
+  <label for="capText">Opacidad del texto <span class="val" id="capTextV"></span></label>
+  <input id="capText" type="range" min="0.3" max="1" step="0.05" value="1">
+  <label for="capBottom">Altura desde el borde inferior del vídeo (px) <span class="val" id="capBottomV"></span></label>
+  <input id="capBottom" type="range" min="0" max="300" step="2" value="56">
+  <small>Más bajo = más cerca del borde de abajo. La barra de control del reproductor ocupa unos 45 px.</small>
+  <label for="capWidth">Ancho máximo (% del vídeo) <span class="val" id="capWidthV"></span></label>
+  <input id="capWidth" type="range" min="30" max="95" step="1" value="70">
+  <label for="capFont">Fuente</label>
+  <select id="capFont">
+    <option value="system-ui, sans-serif">Sistema (por defecto)</option>
+    <option value="Arial, Helvetica, sans-serif">Arial</option>
+    <option value="Verdana, Geneva, sans-serif">Verdana</option>
+    <option value="Tahoma, sans-serif">Tahoma</option>
+    <option value="&quot;Trebuchet MS&quot;, sans-serif">Trebuchet MS</option>
+    <option value="Georgia, serif">Georgia (con serifa)</option>
+    <option value="&quot;Times New Roman&quot;, serif">Times New Roman</option>
+    <option value="&quot;Courier New&quot;, monospace">Courier New (monoespaciada)</option>
+  </select>
+  <small>Solo fuentes que ya trae el sistema.</small>
+  <label class="chk"><input type="checkbox" id="capBold"> Texto en negrita</label>
+</section>
+
+<section>
+  <h2><i>⚡</i> Caché <em>ahorra tokens y créditos</em></h2>
+  <div id="stats">Cargando…</div>
+  <small>Guarda cada traducción y cada audio ya generado. Si vuelves a ver la misma frase con la misma voz, no se gasta nada.</small>
+  <label for="cacheMaxMb">Límite de caché de audio (MB)</label>
+  <input id="cacheMaxMb" type="number" min="50" max="5000" step="50" value="500">
+  <small>Al superarlo se borran los audios más antiguos. Un audio ocupa unos 30 MB por hora de vídeo.</small>
+  <button id="statsBtn" class="sec">Actualizar</button>
+  <button id="clear" class="sec">Vaciar caché</button>
+</section>
+
+<footer>LiveDub · uso personal en contenido al que tienes acceso legítimo · <a href="https://github.com/lukybrou/livedub" target="_blank" rel="noopener">GitHub</a></footer>
 
 <div id="msg"></div>
+</div>
 <script src="errors.js"></script>
 <script src="options.js"></script>
 </body>

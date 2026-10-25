@@ -8,6 +8,8 @@ const RANGES = ["elevenStability", "elevenSimilarity", "elevenSpeed", "capSize",
 const $ = (id) => document.getElementById(id);
 const send = (m) => chrome.runtime.sendMessage(m);
 
+try { $("ver").textContent = "v" + chrome.runtime.getManifest().version; } catch (e) {}
+
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
