@@ -1,5 +1,9 @@
 # Changelog — LiveDub
 
+## v0.6.1 — 2026-10-25
+- Ajustes: selector de tema claro / automático / oscuro (se recuerda).
+- Ajustes: índice lateral con anclas que resalta la sección visible y diseño en dos columnas (en móvil pasa a barra superior).
+
 ## v0.6.0 — 2026-10-25
 - Rediseño: nueva página de ajustes oscura y moderna (tarjetas por sección, interruptores, sliders, cabecera fija con «Guardar todo»).
 - Nuevo icono de la extensión (play + ondas de voz) en 16/32/48/128 px.
