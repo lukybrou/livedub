@@ -15,7 +15,8 @@
   let video = null, btn = null, on = false;
   let segments = [];            // {start,end,en,es?,state(0 pend,1 en curso,2 lista),audioPromise?,audio?}
   let liveMode = false, liveSeen = 0;
-  let origVolume = 1, timer = null, translating = 0;
+  let origVolume = 1, origMuted = false, timer = null, translating = 0;
+  const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
   let audioEl = null, audioDone = null, pausedSpeech = false, pausedAudio = false;
   let useEleven = false, domObs = null;
   let elevenFails = 0, audioInflight = 0, speakId = 0, speaking = false;
@@ -313,7 +314,9 @@
     // YouTube: si los subtítulos (CC) están apagados, los activamos nosotros.
     if (isYT) {
       const ccOn = () => {
-        const b = document.querySelector(".ytp-subtitles-button");
+        // Escritorio (.ytp-subtitles-button) y YouTube móvil (m.youtube.com): solo tocamos un botón que declare su estado.
+        const b = [...document.querySelectorAll('.ytp-subtitles-button, .ytmClosedCaptioningButtonButton, button[aria-label*="ubtítulos" i], button[aria-label*="subtitles" i], button[aria-label*="captions" i]')]
+          .find((x) => x.hasAttribute("aria-pressed"));
         if (b && b.getAttribute("aria-pressed") === "false") { b.click(); console.info("[DobES] CC de YouTube activado automáticamente"); }
         else if (!b) console.info("[DobES] este vídeo no ofrece botón de subtítulos (CC)");
       };
@@ -559,6 +562,9 @@
     if (!ok && isYT) { ok = await loadFromYouTube(); if (ok) hideYtCaptions(); }
     if (!ok) { loadFromDom(); console.info("[DobES] sin textTracks: usando subtítulos del DOM (modo en vivo). Activa CC en el reproductor."); }
     origVolume = video.volume; video.volume = DUCK;
+    // En móvil el navegador suele ignorar el volumen del vídeo (lo manda el dispositivo): silenciamos el original.
+    origMuted = video.muted;
+    if (isMobile || Math.abs(video.volume - DUCK) > 0.01) video.muted = true;
     on = true;
     video.addEventListener("seeking", onSeek);
     timer = setInterval(tick, 150);
@@ -574,7 +580,7 @@
     on = false; clearInterval(timer); cancelSpeech(); domObs?.disconnect();
     document.getElementById("dobes-hide-yt")?.remove();
     if (capEl) capEl.style.display = "none";
-    if (video) { video.volume = origVolume; video.removeEventListener("seeking", onSeek); }
+    if (video) { video.volume = origVolume; video.muted = origMuted; video.removeEventListener("seeking", onSeek); }
     status("ES ▸ off");
   }
   // YouTube cambia de vídeo sin recargar la página: paramos para no doblar con el texto del vídeo anterior.

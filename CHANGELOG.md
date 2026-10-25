@@ -1,5 +1,10 @@
 # Changelog — LiveDub
 
+## v0.7.2 — 2026-10-25
+
+- **Móvil (Firefox Android):** LiveDub ya funciona en el navegador del móvil. En YouTube móvil activa el CC automáticamente cuando puede.
+- **Audio original en móvil:** los navegadores móviles ignoran el volumen del vídeo, así que ahora LiveDub silencia el original mientras dobla y lo restaura al apagarlo (antes se solapaban las dos voces).
+
 ## v0.7.1 — 2026-10-25
 
 - **Arreglo «La traducción llegó incompleta»:** cuando Claude juntaba o partía frases y devolvía otro número de elementos, se descartaba todo el lote y la voz se quedaba sin texto un momento. Ahora el lote se parte por la mitad y se reintenta, hasta que cuadre, así que casi nunca se nota.
