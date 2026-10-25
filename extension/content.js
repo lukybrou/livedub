@@ -218,15 +218,21 @@
 
   // Plan B: subtítulos pintados por el reproductor (DOM). Sin pretraducción.
   function loadFromDom() {
-    const sel = [
-      '[class*="caption" i]', '[class*="subtitle" i]', '[class*="cue" i]', '[class*="vp-captions" i]',
-      '[data-testid*="caption" i]', '[aria-live]',
-    ];
+    // YouTube pinta sus subtítulos en el DOM y no usa textTracks: solo leemos su contenedor de subtítulos.
+    const isYT = /(^|\.)youtube\.com$/.test(location.hostname);
+    const sel = isYT
+      ? ['.ytp-caption-window-container .caption-window', '.ytp-caption-segment']
+      : ['[class*="caption" i]', '[class*="subtitle" i]', '[class*="cue" i]', '[class*="vp-captions" i]',
+         '[data-testid*="caption" i]', '[aria-live]'];
+    // Zonas de la interfaz del reproductor (barra de progreso, tooltips, menús…): nunca son subtítulos.
+    const UI_ZONE = '.ytp-chrome-bottom, .ytp-chrome-top, .ytp-tooltip, .ytp-progress-bar-container, .ytp-fine-scrubbing, .ytp-popup, .ytp-settings-menu, .ytp-ce-element, .ytp-paid-content-overlay, .ytp-chapter-container, .ytp-time-display, .ytp-title, .ytp-ad-module, .ytp-ad-player-overlay';
     // Textos de la interfaz del reproductor que NO son subtítulos (avisos de accesibilidad, botones…).
     const UI = /^(play|pause|paused|playing|resume|replay|mute|unmute|muted|unmuted|volume|fullscreen|exit fullscreen|full screen|settings|quality|captions?|subtitles?|cc|hd|auto|loading|buffering|live|next|previous|seek|forward|rewind|speed|\d+(\.\d+)?x|[\d:.\- ]+|(captions?|subtitles?) (on|off)|picture[- ]in[- ]picture)$/i;
     const isUi = (el, t) =>
       UI.test(t.replace(/[.!¡¿?…,]+$/g, "").trim()) ||
-      !!el.closest('button, [role="button"], [role="slider"], [role="menu"], [role="menuitem"], [role="tooltip"], [data-dobes-ui]');
+      !!el.closest('button, [role="button"], [role="slider"], [role="menu"], [role="menuitem"], [role="tooltip"], [data-dobes-ui], ' + UI_ZONE) ||
+      /\b\d{1,2}:\d{2}\b/.test(t) ||                       // un subtítulo nunca lleva marcas de tiempo (0:04 / 53:17)
+      /arrastra hacia arriba|drag up for|búsquedas más precisas|more precise seek/i.test(t);
     let last = "";
     const read = () => {
       let txt = "";

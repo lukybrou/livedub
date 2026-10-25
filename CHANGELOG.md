@@ -1,5 +1,10 @@
 # Changelog — LiveDub
 
+## v0.6.2 — 2026-10-25
+
+- **Arreglo YouTube:** ya no lee en voz alta textos de la interfaz del reproductor (barra de progreso, tooltips, capítulos, "0:04 / 53:17"…). En YouTube solo se leen los subtítulos reales (activa CC).
+- Filtro general: se ignoran textos con marcas de tiempo y zonas de controles del reproductor.
+
 ## v0.6.1 — 2026-10-25
 - Ajustes: selector de tema claro / automático / oscuro (se recuerda).
 - Ajustes: índice lateral con anclas que resalta la sección visible y diseño en dos columnas (en móvil pasa a barra superior).
