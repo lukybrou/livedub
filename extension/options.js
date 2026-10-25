@@ -213,3 +213,30 @@ $("clear").onclick = async () => {
   refreshStats();
 };
 refreshStats();
+
+/* ---------- Tema (claro / automático / oscuro) ---------- */
+function applyTheme(t) {
+  if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  const cur = t === "light" || t === "dark" ? t : "auto";
+  [["thLight", "light"], ["thAuto", "auto"], ["thDark", "dark"]].forEach(([id, v]) => $(id).classList.toggle("on", v === cur));
+}
+[["thLight", "light"], ["thAuto", "auto"], ["thDark", "dark"]].forEach(([id, v]) => {
+  $(id).onclick = () => { applyTheme(v); chrome.storage.local.set({ theme: v }); };
+});
+chrome.storage.local.get("theme").then((v) => applyTheme(v.theme || "auto"));
+
+/* ---------- Índice lateral: resalta la sección visible ---------- */
+(() => {
+  const links = [...document.querySelectorAll("#toc a")];
+  const secs = links.map((a) => document.querySelector(a.getAttribute("href")));
+  const mark = () => {
+    let cur = 0;
+    secs.forEach((s, i) => { if (s.getBoundingClientRect().top < 140) cur = i; });
+    if (innerHeight + scrollY >= document.body.scrollHeight - 4) cur = secs.length - 1;
+    links.forEach((a, i) => a.classList.toggle("on", i === cur));
+  };
+  addEventListener("scroll", mark, { passive: true });
+  addEventListener("resize", mark);
+  mark();
+})();
