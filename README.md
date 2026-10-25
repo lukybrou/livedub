@@ -56,6 +56,20 @@ Los subtítulos automáticos en español de las plataformas suelen ser malos. Aq
 
 > Al abrir Chrome verás un aviso de «extensiones en modo de desarrollador». Es normal con las extensiones cargadas así; puedes cerrarlo. Cuando LiveDub esté en la Chrome Web Store (está en la hoja de ruta), se instalará con un clic y no saldrá.
 
+### Instalación en Firefox (escritorio y Android)
+
+Firefox solo instala de forma permanente extensiones **firmadas por Mozilla**. Cada release incluye el archivo **`.xpi` firmado** (`…-0.7.2.xpi`); el ZIP de Firefox sin firmar solo sirve para cargarlo de forma temporal con `about:debugging`.
+
+**Firefox para Android** (probado en Firefox Nightly, v0.7.2):
+
+1. Instala **Firefox Nightly** desde Google Play y descarga el `.xpi` de la [última release](../../releases/latest) en el móvil.
+2. En Nightly: **⋮ → Ajustes → Acerca de Firefox Nightly**, toca el logo unas 5 veces para activar el menú de depuración.
+3. Vuelve a **Ajustes → Instalar extensión desde archivo** y elige el `.xpi`. Acepta el aviso de permisos.
+4. Abre los ajustes de LiveDub (⋮ → Extensiones → LiveDub), pega tu **API key de Anthropic** y guarda: es un navegador distinto, así que empieza sin claves.
+5. Abre un vídeo en `youtube.com` o Awwwards **desde el navegador** (la app de YouTube no admite extensiones) y pulsa **ES ▸ off**.
+
+Notas: en móvil LiveDub **silencia** el audio original mientras dobla, porque el navegador no deja bajarle el volumen. Es una versión nueva: si algo no funciona, abre una [incidencia](../../issues) con tu modelo de móvil y la versión de Firefox. La publicación en la tienda de Mozilla (instalación con un toque) está en la hoja de ruta.
+
 ## Cómo conseguir las claves
 
 - **Anthropic (obligatoria):** entra en <https://console.anthropic.com> → *API keys* → *Create key*. Hace falta saldo en la cuenta; con unos pocos dólares tienes para muchas horas de vídeo.
@@ -215,7 +229,7 @@ Aparece en rojo cuando la extensión ha registrado algún error, aunque ya esté
 
 - [ ] Probar y documentar otros navegadores Chromium (Edge, Opera, Brave).
 - [ ] Publicar en la Chrome Web Store (y en la tienda de Edge).
-- [ ] Versión para Firefox (escritorio y Android).
+- [ ] Firefox: probado en Android (Nightly) con `.xpi` firmado. Falta probar en escritorio y publicar en la tienda de Mozilla.
 - [ ] Más plataformas probadas (Udemy, Vimeo, Coursera…), con lector propio si hace falta.
 - [ ] Modo por captura de audio (para vídeos sin subtítulos): tabCapture + STT en streaming.
 - [ ] Otros idiomas de destino (catalán, francés, portugués…): idioma configurable en Ajustes, prompt y voz dinámicos. *En pausa hasta que haya demanda o lo proponga la comunidad.*
@@ -252,6 +266,12 @@ A Chrome (Manifest V3) extension that **dubs English video courses into Spanish 
 4. Click the LiveDub icon, paste your **Anthropic API key** (ElevenLabs key + Voice ID are optional), press **Test translation** and **Save all**.
 
 Chrome will show a "developer mode extensions" notice on startup; that's normal for unpacked extensions. To update, unzip the new version over the same folder, press ↻ in `chrome://extensions` and reload the page.
+
+### Install on Firefox (desktop and Android)
+
+Firefox only permanently installs extensions **signed by Mozilla**. Each release includes the **signed `.xpi`** (`…-0.7.2.xpi`); the unsigned Firefox ZIP is only for temporary loading via `about:debugging`.
+
+**Firefox for Android** (tested on Firefox Nightly, v0.7.2): install Firefox Nightly, download the `.xpi` from the [latest release](../../releases/latest) on your phone, tap the Firefox logo ~5 times in **Settings → About Firefox Nightly** to enable the debug menu, then use **Settings → Install extension from file**. Open LiveDub's settings and paste your Anthropic key (new browser, no keys yet). Use the site in the browser (the YouTube app doesn't support extensions). On mobile LiveDub **mutes** the original audio while dubbing, since the browser ignores the video volume. Store listing on Mozilla's add-ons site is on the roadmap.
 
 ### Get your keys
 
