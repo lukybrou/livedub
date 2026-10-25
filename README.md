@@ -132,6 +132,27 @@ Usas **tus propias claves**. Haiku es muy barato (céntimos por hora de vídeo) 
 - Úsala para **uso personal en contenido al que tienes acceso legítimo**. No redistribuyas ni grabes material de terceros doblado. Respeta los términos de cada plataforma.
 - Con el plan gratuito de ElevenLabs, las voces clonadas no se pueden usar por API (error 401); usa una voz de la biblioteca.
 
+## Diagnóstico: cómo ver qué está pasando
+
+LiveDub tiene dos "partes" y cada una escribe en su propia consola:
+
+| Parte | Qué hace | Dónde ver sus mensajes |
+|---|---|---|
+| **Script de la página** | Detecta el vídeo y los subtítulos, pinta los botones y el subtítulo, reproduce la voz. | En la página del curso: **F12 → Consola**, y escribe `DobES` en el filtro. |
+| **Service worker** | Habla con Anthropic (traducción) y ElevenLabs (voz), gestiona la caché. | En `chrome://extensions`, en la tarjeta de LiveDub, pulsa **«service worker»** (enlace «Inspeccionar vistas»). Se abre una ventana de DevTools: pestaña **Consola** para los mensajes y **Red (Network)** para ver cada petición a `api.anthropic.com` y `api.elevenlabs.io` con su código de respuesta (200 = bien, 401 = clave, 402/429 = créditos o límite). |
+
+**Qué buscar**
+
+- En la consola de la página: `[DobES] subtítulo detectado: …` confirma que lee los subtítulos, y `[DobES] Haiku: EN → ES` muestra cada traducción.
+- En el service worker: los errores de las APIs con su código y el detalle. Si algo falla, los ajustes y el aviso junto al botón ya te dicen **qué ha pasado y qué hacer**; esta consola es el detalle técnico.
+- Si el service worker aparece como «inactivo», es normal: Chrome lo duerme y lo despierta cuando hace falta. Pulsar el enlace lo despierta.
+
+**El botón «Errores» de `chrome://extensions`**
+
+Aparece en rojo cuando la extensión ha registrado algún error, aunque ya esté resuelto (por ejemplo, un fallo de ElevenLabs o una petición cancelada al cambiar de página). Púlsalo para leer el mensaje y la línea del código, y usa **«Borrar todo»** para limpiar el historial. Si salen errores nuevos mientras la usas con normalidad, abre un [issue](../../issues) con el texto (sin tus claves).
+
+**Para reportar un fallo**, copia: la versión (ajustes, arriba), los mensajes de `DobES` de la consola de la página, y el error del service worker.
+
 ## Solución de problemas
 
 - **No suena nada**: comprueba que el botón dice «on». Abre la consola (F12), filtra por `DobES` y busca «subtítulo detectado».
