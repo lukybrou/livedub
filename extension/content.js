@@ -239,7 +239,7 @@
       for (const s of sel) {
         for (const el of document.querySelectorAll(s)) {
           const t = (el.innerText || "").trim();
-          if (!t || t.length >= 300 || el.offsetParent === null) continue;
+          if (!t || t.length >= 300 || !el.getClientRects().length) continue;
           if (isUi(el, t)) continue;
           // Un aria-live sin pinta de subtítulo (1–2 palabras) suele ser un aviso del reproductor.
           if (s === "[aria-live]" && t.split(/\s+/).length < 3) continue;
@@ -252,6 +252,23 @@
     domObs = new MutationObserver(read);
     domObs.observe(document.body, { childList: true, subtree: true, characterData: true });
     liveMode = true;
+    // YouTube: si los subtítulos (CC) están apagados, los activamos nosotros.
+    if (isYT) {
+      const ccOn = () => {
+        const b = document.querySelector(".ytp-subtitles-button");
+        if (b && b.getAttribute("aria-pressed") === "false") { b.click(); console.info("[DobES] CC de YouTube activado automáticamente"); }
+        else if (!b) console.info("[DobES] este vídeo no ofrece botón de subtítulos (CC)");
+      };
+      ccOn(); setTimeout(ccOn, 1500);
+      // Ocultamos (solo visualmente) los subtítulos en inglés de YouTube: los seguimos leyendo, pero se ve el subtítulo en español de LiveDub.
+      if (showCapOn && !document.getElementById("dobes-hide-yt")) {
+        const st = document.createElement("style");
+        st.id = "dobes-hide-yt";
+        st.textContent = ".ytp-caption-window-container{opacity:0 !important}";
+        document.head.appendChild(st);
+      }
+    }
+    read();
   }
 
   /* ---------- 3. Traducción por adelantado ---------- */
@@ -499,6 +516,7 @@
   function onSeek() { cancelSpeech(); speaking = false; segments.forEach((s) => (s.spoken = false)); }
   function stop() {
     on = false; clearInterval(timer); cancelSpeech(); domObs?.disconnect();
+    document.getElementById("dobes-hide-yt")?.remove();
     if (capEl) capEl.style.display = "none";
     if (video) { video.volume = origVolume; video.removeEventListener("seeking", onSeek); }
     status("ES ▸ off");

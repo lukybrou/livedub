@@ -29,6 +29,22 @@ Los subtítulos automáticos en español de las plataformas suelen ser malos. Aq
 - **Errores explicados**: cada fallo dice qué ha pasado y qué hacer.
 - **Sin servidor, sin telemetría, sin dependencias.** Tus claves solo viven en `chrome.storage.local`.
 
+## Idiomas y plataformas
+
+**Idioma:** de momento LiveDub hace **solo inglés → español** (español de España). Está fijado en el prompt de traducción, en la detección de idioma y en la voz. Otros idiomas de destino (catalán, francés, portugués, alemán…) **no están previstos hasta que haya demanda**: si te interesan, propónlo en [Discussions → Ideas](../../discussions) y, si hay interés, se añade o puedes contribuir ([CONTRIBUTING.md](CONTRIBUTING.md)).
+
+### Compatibilidad
+
+| Plataforma | Estado | Cómo lee los subtítulos | Probado en |
+|---|---|---|---|
+| **Awwwards Academy** (Video.js) | ✅ Probado | Pista de subtítulos en inglés, **aunque el CC esté apagado** | v0.6.x |
+| **YouTube** | ✅ Probado | Activa el CC por ti, lo oculta y muestra tu subtítulo en español | v0.6.2 |
+| Otros reproductores Video.js | 🟡 Debería funcionar | Pista de subtítulos (`textTracks`) | Sin probar |
+| Otros sitios | 🟡 Depende | Si publican `textTracks` o pintan los subtítulos en pantalla (activa el CC) | Sin probar |
+| Vídeos **sin subtítulos** | ❌ No soportado | No hay texto que leer (modo por audio en la hoja de ruta) | — |
+
+¿Lo has probado en otra plataforma (Udemy, Vimeo, Coursera, Frontend Masters…)? Cuéntalo en [Discussions → Show and tell](../../discussions) con lo que funcionó y lo que no, y lo añadimos a la tabla.
+
 ## Instalación (2 minutos)
 
 1. Descarga el ZIP de la [última release](../../releases/latest) y **descomprímelo en una carpeta que no vayas a borrar** (o clona el repo y usa la carpeta `extension/`).
@@ -161,6 +177,7 @@ Aparece en rojo cuando la extensión ha registrado algún error, aunque ya esté
 
 ## Hoja de ruta
 
+- [ ] Otros idiomas de destino (catalán, francés, portugués…): idioma configurable en Ajustes, prompt y voz dinámicos. *En pausa hasta que haya demanda o lo proponga la comunidad.*
 - [ ] Modo por captura de audio (para vídeos sin subtítulos): tabCapture + STT en streaming.
 - [ ] Selectores por sitio para más plataformas.
 - [ ] Más estilos de subtítulo (borde, color de fondo).
@@ -180,6 +197,8 @@ Más detalle de cambios en el [CHANGELOG](CHANGELOG.md). ¿Ideas o fallos? Abre 
 # LiveDub — live Spanish dubbing (EN)
 
 A Chrome (Manifest V3) extension that **dubs English video courses into Spanish in near real time**. It reads the player's English subtitles, translates them with **Claude**, and speaks them with **ElevenLabs** or the free browser voice, ducking the original audio. Built for courses like Awwwards Academy.
+
+**Languages:** currently **English → Spanish only** (Spain Spanish). Other target languages are not planned until there is demand — suggest one in [Discussions → Ideas](../../discussions) or contribute it. **Tested on:** Awwwards Academy (Video.js, works even with CC off) and YouTube (auto-enables CC, hides the English captions, shows the Spanish ones). Other sites work if the player exposes `textTracks` or renders captions on screen. Videos without subtitles can't be dubbed yet. Tried another platform? Tell us in Discussions → Show and tell.
 
 **Highlights:** reads English tracks even with CC off (Video.js) · context-aware translation that fixes auto-caption errors · ElevenLabs / browser voice switch with remembered failures · customizable on-screen Spanish subtitle · local cache to avoid re-spending tokens and credits · zero dependencies, no server, keys stay in `chrome.storage.local`.
 
