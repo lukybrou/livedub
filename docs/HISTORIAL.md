@@ -1,6 +1,6 @@
 # Historial de decisiones y lecciones (para agentes y mantenedores)
 
-Contexto que no se deduce del código. Complementa `CLAUDE.md`.
+Contexto que no se deduce del código. Complementa `AGENTS.md`.
 
 ## Navegadores: qué sabemos
 - **Chrome:** funciona (Awwwards Academy v0.6.x, YouTube v0.7.0). Se carga sin empaquetar desde `chrome://extensions` (modo desarrollador → «Cargar descomprimida»). Un botón «Errores» con «Extension context invalidated» es residuo de recargar la extensión: «Borrar todo» y F5 en las pestañas.
@@ -31,3 +31,8 @@ Contexto que no se deduce del código. Complementa `CLAUDE.md`.
 - Prioridad: **móvil y facilidad de instalación** para otros usuarios (por eso la tienda de Mozilla; Chrome Web Store después).
 - El icono de la barra hoy abre los ajustes. Idea aparcada: que haga de interruptor on/off por pestaña.
 - Aviso de error (p. ej. sin créditos de ElevenLabs): debe poder cerrarse siempre (v0.7.4: ✕, clic por coordenadas en captura de ventana, Esc), porque algunos reproductores se tragan los clics sobre el vídeo.
+
+## Agentes y permisos (2026-10-27)
+- Un agente local (OpenCode con Qwen) hizo rama, PR #2, merge guiado, tag y release v0.7.4 de forma autónoma. Para hablar con la API de GitHub extrajo el token con `git credential fill` (no lo imprimió). El mantenedor decidió **dejar que el agente publique**, pero con reglas escritas: ver «Qué puede hacer el agente» en `AGENTS.md` y `opencode.json`.
+- Decisión: usar la CLI `gh` autenticada (no extraer tokens a mano); el merge del PR sigue siendo del mantenedor; el candado definitivo es el ruleset de `main` en GitHub.
+- El agente del mantenedor es **OpenCode** (modelo Qwen). Su archivo de reglas es `AGENTS.md` (`CLAUDE.md` solo es un respaldo; aquí remite a `AGENTS.md`). No usa `.claude/settings.json` (ese es de Claude Code): sus permisos están en `opencode.json`.
