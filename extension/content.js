@@ -86,6 +86,22 @@
 
   // Aviso junto al botón: qué ha pasado y qué hacer. Una vez por tipo de error, se cierra al pulsar.
   const notified = new Set();
+  function closeBanner() { banner?.remove(); banner = null; }
+  // Algunos reproductores (Video.js, Wistia…) se tragan los clics encima del vídeo: cerramos el aviso
+  // escuchando en la ventana, en fase de captura y por coordenadas, antes de que la página los intercepte.
+  for (const type of ["pointerdown", "mousedown", "click", "touchstart"]) {
+    addEventListener(type, (e) => {
+      if (!banner || !banner.isConnected) return;
+      const pt = e.touches?.[0] || e;
+      const r = banner.getBoundingClientRect();
+      if (pt.clientX >= r.left && pt.clientX <= r.right && pt.clientY >= r.top && pt.clientY <= r.bottom) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        if (type === "click" || type === "touchstart") closeBanner();
+      }
+    }, true);
+  }
+  addEventListener("keydown", (e) => { if (e.key === "Escape") closeBanner(); }, true);
   function notify(prefix, raw, st, extra) {
     const e = DobErr.explain(raw, st);
     console.warn("[DobES]", prefix + e.title, "|", e.tip, "|", raw);
@@ -110,9 +126,14 @@
     banner.style.top = r.bottom + 8 + "px";
     banner.style.left = Math.max(8, r.right - 340) + "px";
     banner.title = "Pulsa para cerrar";
-    banner.onclick = () => banner?.remove();
+    const x = document.createElement("div");
+    x.textContent = "✕";
+    x.style.cssText = "position:absolute;top:6px;right:10px;font-size:14px;opacity:.7";
+    banner.style.paddingRight = "30px";
+    banner.append(x);
+    banner.onclick = closeBanner;
     document.documentElement.appendChild(banner);
-    setTimeout(() => banner?.remove(), 20000);
+    setTimeout(closeBanner, 20000);
     return e;
   }
 

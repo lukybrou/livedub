@@ -1,5 +1,10 @@
 # Changelog — LiveDub
 
+## v0.7.4 — 2026-10-26
+
+- **Arreglo:** el aviso de error (p. ej. «te has quedado sin créditos de ElevenLabs») ahora se puede cerrar siempre: algunos reproductores se tragaban el clic. Tiene una ✕ visible, se cierra al pulsar en cualquier parte del aviso y con la tecla Esc.
+- Firefox: ficha pública en la tienda de Mozilla (política de privacidad incluida).
+
 ## v0.7.2 — 2026-10-25
 
 - **Móvil (Firefox Android):** LiveDub ya funciona en el navegador del móvil. En YouTube móvil activa el CC automáticamente cuando puede.
